@@ -11,4 +11,5 @@ func RegisterRoutes() {
 	http.HandleFunc("/customers/update", handlers.UpdateCustomer)
 	http.HandleFunc("/customers/delete", handlers.DeleteCustomer)
 	http.HandleFunc("/customers/address", handlers.GetCustomerAddress)
+	http.HandleFunc("/loginuser", handlers.LoginCustomer)
 }

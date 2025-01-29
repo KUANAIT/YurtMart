@@ -156,19 +156,26 @@ func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	objectID, err := primitive.ObjectIDFromHex(customerID)
+	if err != nil {
+		http.Error(w, "Invalid customer ID format", http.StatusBadRequest)
+		return
+	}
+
 	collection, err := database.GetCollection("YurtMart", "customers")
 	if err != nil {
 		http.Error(w, "Failed to get database collection", http.StatusInternalServerError)
 		return
 	}
 
-	_, err = collection.DeleteOne(r.Context(), bson.M{"customer_id": customerID})
+	result, err := collection.DeleteOne(r.Context(), bson.M{"_id": objectID})
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			http.Error(w, "Customer not found", http.StatusNotFound)
-		} else {
-			http.Error(w, "Failed to delete customer", http.StatusInternalServerError)
-		}
+		http.Error(w, "Failed to delete customer", http.StatusInternalServerError)
+		return
+	}
+
+	if result.DeletedCount == 0 {
+		http.Error(w, "Customer not found", http.StatusNotFound)
 		return
 	}
 
