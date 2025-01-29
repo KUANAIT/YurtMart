@@ -2,8 +2,9 @@ package models
 
 import (
 	"YurtMart/auth"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Customer struct {
@@ -14,6 +15,8 @@ type Customer struct {
 	BillingAddress  Address            `json:"billing_address"`
 	CreatedAt       time.Time          `json:"created_at"`
 	UpdatedAt       time.Time          `json:"updated_at"`
+	User_ID         string             `json:"user_id"`
+	UserCart        []ProductUser      `json:"user_cart" bson:"user_cart"`
 }
 
 func (c *Customer) HashPassword() error {
