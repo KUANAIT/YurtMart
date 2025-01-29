@@ -13,28 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func GetItems(w http.ResponseWriter, r *http.Request) {
-	var items []models.Item
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	cursor, err := config.DB.Find(ctx, bson.M{})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer cursor.Close(ctx)
-
-	for cursor.Next(ctx) {
-		var item models.Item
-		cursor.Decode(&item)
-		items = append(items, item)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(items)
-}
-
 func CreateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
 	err := json.NewDecoder(r.Body).Decode(&item)
@@ -55,6 +33,28 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(item)
+}
+
+func GetItems(w http.ResponseWriter, r *http.Request) {
+	var items []models.Item
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cursor, err := config.DB.Find(ctx, bson.M{})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var item models.Item
+		cursor.Decode(&item)
+		items = append(items, item)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(items)
 }
 
 func UpdateItem(w http.ResponseWriter, r *http.Request) {
