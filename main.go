@@ -1,25 +1,36 @@
 package main
 
 import (
-	"YurtMart/database"
 	"log"
 	"net/http"
+
+	"YurtMart/database"
+	"YurtMart/routes"
+	"YurtMart/web"
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	err := database.ConnectDB()
-	if err != nil {
-		log.Fatalf("Database connection error: %v", err)
+
+	if err := database.ConnectDB(); err != nil {
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 	defer func() {
 		if err := database.DisconnectDB(); err != nil {
-			log.Printf("Failed to disconnect from MongoDB: %v", err)
+			log.Printf("Error disconnecting from database: %v", err)
 		}
 	}()
 
-	fs := http.FileServer(http.Dir("./public"))
-	http.Handle("/", fs)
+	database.Connect_DB()
 
-	log.Println("Server is running at http://localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	router := mux.NewRouter()
+
+	routes.RegisterRoutes()
+	routes.RegisterItemRoutes(router)
+	routes.RegisterOrderRoutes(router)
+
+	web.SetupTemplates()
+
+	log.Println("Server started on :8087")
+	log.Fatal(http.ListenAndServe(":8087", router))
 }
