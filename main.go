@@ -1,12 +1,11 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"YurtMart/database"
 	"YurtMart/routes"
 	"YurtMart/web"
+	"log"
+	"net/http"
 )
 
 func main() {

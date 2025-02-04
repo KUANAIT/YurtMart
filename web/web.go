@@ -33,4 +33,7 @@ func SetupTemplates() {
 	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./templates/register.html")
 	})
+	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./templates/login.html")
+	})
 }
