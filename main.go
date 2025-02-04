@@ -7,7 +7,6 @@ import (
 	"YurtMart/database"
 	"YurtMart/routes"
 	"YurtMart/web"
-	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -23,14 +22,13 @@ func main() {
 
 	database.Connect_DB()
 
-	router := mux.NewRouter()
-
 	routes.RegisterRoutes()
-	routes.RegisterItemRoutes(router)
-	routes.RegisterOrderRoutes(router)
+	routes.RegisterItemRoutes()
+	routes.RegisterOrderRoutes()
 
 	web.SetupTemplates()
 
-	log.Println("Server started on :8087")
-	log.Fatal(http.ListenAndServe(":8087", router))
+	log.Println("Server started on :3000")
+	log.Fatal(http.ListenAndServe(":3000", nil))
+
 }

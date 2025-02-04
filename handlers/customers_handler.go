@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"time"
 )
@@ -101,10 +100,22 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	objectID, err := primitive.ObjectIDFromHex(customerID)
+	if err != nil {
+		http.Error(w, "Invalid customer ID format", http.StatusBadRequest)
+		return
+	}
+
 	var customer models.Customer
 	if err := json.NewDecoder(r.Body).Decode(&customer); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
+	}
+
+	updateFields := bson.M{}
+
+	if customer.Name != "" {
+		updateFields["name"] = customer.Name
 	}
 
 	if customer.Password != "" {
@@ -112,7 +123,23 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to hash password", http.StatusInternalServerError)
 			return
 		}
+		updateFields["password"] = customer.Password
 	}
+
+	if (customer.ShippingAddress != models.Address{}) {
+		updateFields["shippingaddress"] = customer.ShippingAddress
+	}
+
+	if (customer.BillingAddress != models.Address{}) {
+		updateFields["billingaddress"] = customer.BillingAddress
+	}
+
+	if len(updateFields) == 0 {
+		http.Error(w, "No fields to update", http.StatusBadRequest)
+		return
+	}
+
+	updateFields["updatedat"] = time.Now()
 
 	collection, err := database.GetCollection("YurtMart", "customers")
 	if err != nil {
@@ -120,22 +147,14 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	update := bson.M{
-		"$set": bson.M{
-			"name":             customer.Name,
-			"password":         customer.Password,
-			"shipping_address": customer.ShippingAddress,
-			"billing_address":  customer.BillingAddress,
-		},
+	result, err := collection.UpdateOne(r.Context(), bson.M{"_id": objectID}, bson.M{"$set": updateFields})
+	if err != nil {
+		http.Error(w, "Failed to update customer", http.StatusInternalServerError)
+		return
 	}
 
-	_, err = collection.UpdateOne(r.Context(), bson.M{"customer_id": customerID}, update)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			http.Error(w, "Customer not found", http.StatusNotFound)
-		} else {
-			http.Error(w, "Failed to update customer", http.StatusInternalServerError)
-		}
+	if result.MatchedCount == 0 {
+		http.Error(w, "Customer not found", http.StatusNotFound)
 		return
 	}
 
