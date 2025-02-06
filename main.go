@@ -1,16 +1,15 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"YurtMart/database"
 	"YurtMart/routes"
 	"YurtMart/web"
-	"github.com/gorilla/mux"
+	"log"
+	"net/http"
 )
 
 func main() {
+	database.Connect_DB()
 
 	if err := database.ConnectDB(); err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
@@ -21,16 +20,15 @@ func main() {
 		}
 	}()
 
-	database.Connect_DB()
-
-	router := mux.NewRouter()
-
-	routes.RegisterRoutes()
-	routes.RegisterItemRoutes(router)
-	routes.RegisterOrderRoutes(router)
-
 	web.SetupTemplates()
+	routes.RegisterRoutes()
 
-	log.Println("Server started on :8087")
-	log.Fatal(http.ListenAndServe(":8087", router))
+	router := routes.SetupItemRoutes()
+
+	corsHandler := web.SetupCORS(router)
+
+	http.Handle("/", corsHandler)
+
+	log.Println("Server started on :8086")
+	log.Fatal(http.ListenAndServe(":8086", nil))
 }
