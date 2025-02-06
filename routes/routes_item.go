@@ -5,11 +5,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func RegisterItemRoutes(router *mux.Router) {
+func SetupItemRoutes() *mux.Router {
+	router := mux.NewRouter()
 
-	router.HandleFunc("/items", handlers.GetItems).Methods("GET")
+	router.HandleFunc("/items", handlers.GetItems).Methods("GET", "OPTIONS")
+	router.HandleFunc("/items", handlers.CreateItem).Methods("POST", "OPTIONS")
+	router.HandleFunc("/items", handlers.UpdateItem).Methods("PUT", "OPTIONS")
+	router.HandleFunc("/items/delete", handlers.DeleteItem).Methods("DELETE", "OPTIONS")
 
-	router.HandleFunc("/items", handlers.CreateItem).Methods("POST")
-	router.HandleFunc("/items", handlers.UpdateItem).Methods("PUT")
-	router.HandleFunc("/items/delete", handlers.DeleteItem).Methods("DELETE")
+	return router
 }

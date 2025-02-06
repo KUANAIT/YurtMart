@@ -1,6 +1,6 @@
 async function fetchItems() {
     try {
-        const response = await fetch("http://localhost:8087/items");
+        const response = await fetch("http://localhost:8086/items");
         const items = await response.json();
         console.log("Before display:", items);
         displayItems(items);
