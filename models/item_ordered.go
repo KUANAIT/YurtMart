@@ -1,8 +1,6 @@
 package models
 
-import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type ItemOrdered struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id"`
@@ -12,7 +10,7 @@ type ItemOrdered struct {
 }
 
 type Order struct {
-	ID    primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Items []ItemOrdered      `bson:"items" json:"items"`
-	Total float64            `bson:"total" json:"total"`
+	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	TotalPrice float64            `bson:"total_price" json:"total_price"`
+	Items      []ItemOrdered      `bson:"items" json:"items"`
 }
