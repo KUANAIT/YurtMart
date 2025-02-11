@@ -27,7 +27,7 @@ func main() {
 	routes.RegisterRoutes()
 	routes.RegisterAuthRoutes()
 	routes.RegisterItemRoutes()
-	routes.RegisterOrderRoutes()
+	routes.RegisterItemOrderedRoutes()
 	web.SetupTemplates()
 
 	log.Println("Server started on :3000")
