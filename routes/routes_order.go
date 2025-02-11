@@ -5,9 +5,8 @@ import (
 	"net/http"
 )
 
-func RegisterOrderRoutes() {
-	http.HandleFunc("/orders/add", handlers.AddItem)
-	http.HandleFunc("/orders/display", handlers.Display)
-	http.HandleFunc("/orders/getprice", handlers.GetPrice)
-	http.HandleFunc("/orders/delete", handlers.DeleteOrder)
+func RegisterItemOrderedRoutes() {
+	http.HandleFunc("/items_ordered/add", handlers.AddItem)
+	http.HandleFunc("/ordered_items/getprice/", handlers.GetPrice)
+	http.HandleFunc("/items_ordered/display", handlers.Display)
 }
