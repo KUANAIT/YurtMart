@@ -3,6 +3,7 @@ package handlers
 import (
 	"YurtMart/database"
 	"YurtMart/models"
+	"YurtMart/sessions"
 	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
@@ -39,6 +40,13 @@ func LoginCustomer(w http.ResponseWriter, r *http.Request) {
 
 	if !customer.CheckPassword(credentials.Password) {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	userID := customer.ID.Hex()
+
+	if err := sessions.SetUserSession(w, r, userID); err != nil {
+		http.Error(w, "Failed to set session", http.StatusInternalServerError)
 		return
 	}
 

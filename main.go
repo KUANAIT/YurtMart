@@ -3,13 +3,15 @@ package main
 import (
 	"YurtMart/database"
 	"YurtMart/routes"
+	"YurtMart/sessions"
 	"YurtMart/web"
 	"log"
 	"net/http"
 )
 
 func main() {
-	database.Connect_DB()
+	sessionKey := []byte("your-32-byte-secret-key-here")
+	sessions.Initialize(sessionKey)
 
 	if err := database.ConnectDB(); err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
@@ -20,11 +22,14 @@ func main() {
 		}
 	}()
 
-	web.SetupTemplates()
+	database.Connect_DB()
+
 	routes.RegisterRoutes()
-
+	routes.RegisterAuthRoutes()
 	routes.RegisterItemRoutes()
+	routes.RegisterOrderRoutes()
+	web.SetupTemplates()
 
-	log.Println("Server started on :8086")
-	log.Fatal(http.ListenAndServe(":8086", nil))
+	log.Println("Server started on :3000")
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }

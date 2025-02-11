@@ -26,18 +26,17 @@
                     <a class="nav-link" href="#">Products</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">About Us</a>
+                    <a class="nav-link" href="/about">About Us</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Contact</a>
+                    <a class="nav-link" href="/contact">Contact</a>
                 </li>
-                <li class="nav-item">
-                        <a class="nav-link" href="/register">Register</a>
-                </li>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
-                </li>
+                {{if .Authenticated}}
+                <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
+                {{else}}
+                <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
+                <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                {{end}}
             </ul>
         </div>
     </div>
@@ -50,10 +49,10 @@
             <p class="lead">
                 Discover a wide range of high-quality products at affordable prices. From groceries to household items, we've got you covered.
             </p>
-            <a href="#" class="btn btn-primary btn-lg">Start Shopping</a>
+            <a href="/shop" class="btn btn-primary btn-lg">Start Shopping</a>
         </div>
         <div class="col-lg-6 text-center">
-            <img src="https://via.placeholder.com/400" alt="Shopping" class="img-fluid rounded shadow">
+            <img src="../static/images/YurtMartlogo.png" alt="Shopping" class="img-fluid rounded shadow">
         </div>
     </div>
 </main>

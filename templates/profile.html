@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+    .card { background: #f4f4f4; padding: 20px; border-radius: 10px; display: inline-block; width: 50%; }
+    .logout-button { margin-top: 20px; padding: 10px 15px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .logout-button:hover { background-color: darkred; }
+    .address { text-align: left; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Welcome back, {{.Name}}!</h2>
+  <p><strong>User ID:</strong> {{.ID}}</p>
+
+  <div class="address">
+    <h3>Shipping Address</h3>
+    <p>{{.ShippingAddress.Street}}</p>
+    <p>{{.ShippingAddress.City}}, {{.ShippingAddress.State}}, {{.ShippingAddress.PostalCode}}</p>
+    <p>{{.ShippingAddress.Country}}</p>
+  </div>
+
+
+  <form action="/logout" method="POST">
+    <button class="logout-button" type="submit">Logout</button>
+  </form>
+</div>
+
+</body>
+</html>
