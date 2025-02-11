@@ -24,6 +24,7 @@ func main() {
 	routes.RegisterRoutes()
 
 	routes.RegisterItemRoutes()
+	routes.RegisterItemOrderedRoutes()
 
 	log.Println("Server started on :8086")
 	log.Fatal(http.ListenAndServe(":8086", nil))
