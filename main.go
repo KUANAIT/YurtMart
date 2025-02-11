@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	database.Connect_DB()
 
 	if err := database.ConnectDB(); err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
@@ -19,15 +20,11 @@ func main() {
 		}
 	}()
 
-	database.Connect_DB()
-
-	routes.RegisterRoutes()
-	routes.RegisterItemRoutes()
-	routes.RegisterOrderRoutes()
-
 	web.SetupTemplates()
+	routes.RegisterRoutes()
 
-	log.Println("Server started on :3000")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	routes.RegisterItemRoutes()
 
+	log.Println("Server started on :8086")
+	log.Fatal(http.ListenAndServe(":8086", nil))
 }

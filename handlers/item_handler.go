@@ -1,17 +1,50 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"html/template"
 	"net/http"
-	"time"
 
 	"YurtMart/database"
 	"YurtMart/models"
 
+	"context"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"time"
 )
+
+func RenderItemsPage(w http.ResponseWriter, r *http.Request) {
+	var items []models.Item
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cursor, err := database.DB.Find(ctx, bson.M{}, options.Find())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var item models.Item
+		if err := cursor.Decode(&item); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		items = append(items, item)
+	}
+
+	t, err := template.ParseFiles("templates/shop.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	t.Execute(w, items)
+}
 
 func CreateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item

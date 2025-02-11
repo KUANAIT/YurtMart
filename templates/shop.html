@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supermarket Items</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .card h2 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .card p {
+      color: #666;
+      margin: 5px 0;
+    }
+    .price {
+      font-size: 1.2em;
+      color: #28a745;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<h1 style="text-align:center;">Supermarket Items</h1>
+<div class="container">
+  {{range .}}
+  <div class="card">
+    <h2>{{.Name}}</h2>
+    <p><strong>Category:</strong> {{.Category}}</p>
+    <p class="price">${{.Price}}</p>
+    <p><strong>Stock:</strong> {{.Stock}}</p>
+    <p>{{.Description}}</p>
+  </div>
+  {{end}}
+</div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package web
 
 import (
+	"YurtMart/handlers"
 	"html/template"
 	"log"
 	"net/http"
@@ -36,4 +37,6 @@ func SetupTemplates() {
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./templates/login.html")
 	})
+	http.HandleFunc("/shop", handlers.RenderItemsPage)
+
 }

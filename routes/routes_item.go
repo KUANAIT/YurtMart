@@ -2,16 +2,13 @@ package routes
 
 import (
 	"YurtMart/handlers"
-	"github.com/gorilla/mux"
+	"net/http"
 )
 
-func SetupItemRoutes() *mux.Router {
-	router := mux.NewRouter()
+func RegisterItemRoutes() {
 
-	router.HandleFunc("/items", handlers.GetItems).Methods("GET", "OPTIONS")
-	router.HandleFunc("/items", handlers.CreateItem).Methods("POST", "OPTIONS")
-	router.HandleFunc("/items", handlers.UpdateItem).Methods("PUT", "OPTIONS")
-	router.HandleFunc("/items/delete", handlers.DeleteItem).Methods("DELETE", "OPTIONS")
-
-	return router
+	http.HandleFunc("/items/get", handlers.GetItems)
+	http.HandleFunc("/items/create", handlers.CreateItem)
+	http.HandleFunc("/items/update", handlers.UpdateItem)
+	http.HandleFunc("/items/delete", handlers.DeleteItem)
 }

@@ -10,8 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var OrdersDB *mongo.Collection
 var DB *mongo.Collection
+var OrdersDB *mongo.Collection
 
 func Connect_DB() {
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
@@ -30,5 +30,5 @@ func Connect_DB() {
 
 	fmt.Println("Connected to MongoDB!")
 	DB = client.Database("supermarket").Collection("items")
-	OrdersDB = client.Database("supermarket").Collection("orders")
+	OrdersDB = client.Database("supermarket").Collection("items")
 }
