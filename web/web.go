@@ -24,5 +24,9 @@ func SetupTemplates() {
 		http.ServeFile(w, r, "./templates/contact.html")
 	})
 	http.HandleFunc("/shop", handlers.RenderItemsPage)
+	http.HandleFunc("/reviews", handlers.Reviews)
+	http.HandleFunc("/submit-review", handlers.SubmitReview)
+	http.HandleFunc("/edit-review", handlers.EditReview)
+	http.HandleFunc("/delete-review", handlers.DeleteReview)
 
 }

@@ -38,20 +38,185 @@
       color: #28a745;
       font-weight: bold;
     }
+    .quantity-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .quantity-btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .quantity-btn:disabled {
+      background-color: #ccc;
+    }
+    .quantity {
+      margin: 0 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px; /* Adds space between elements */
+      margin-bottom: 20px; /* Adds spacing below */
+    }
+
+    .search-box {
+      width: 300px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .search-button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .search-button:hover {
+      background-color: #0056b3;
+    }
+
+    .search-button:last-child {
+      background-color: #dc3545; /* Red color for reset */
+    }
+
+    .search-button:last-child:hover {
+      background-color: #b02a37;
+    }
   </style>
 </head>
 <body>
+
 <h1 style="text-align:center;">Supermarket Items</h1>
-<div class="container">
+
+<div class="search-container">
+  <input type="text" id="searchInput" class="search-box" placeholder="Search by name...">
+  <button onclick="searchItems()" class="search-button">Search</button>
+  <button onclick="resetItems()" class="search-button" style="background-color: #dc3545;">Reset</button>
+</div>
+
+<div class="container" id="itemsContainer">
   {{range .}}
-  <div class="card">
+  <div class="card" data-id="{{.ID}}">
     <h2>{{.Name}}</h2>
     <p><strong>Category:</strong> {{.Category}}</p>
     <p class="price">${{.Price}}</p>
     <p><strong>Stock:</strong> {{.Stock}}</p>
     <p>{{.Description}}</p>
+
+    <div class="quantity-container">
+      <button class="quantity-btn" onclick="decreaseQuantity('{{.ID}}')">-</button>
+      <span class="quantity" id="quantity-{{.ID}}">0</span>
+      <button class="quantity-btn" onclick="increaseQuantity('{{.ID}}')">+</button>
+    </div>
+
+    <button class="add-to-cart-btn" onclick="addToCart('{{.ID}}', '{{.Name}}', '{{.Price}})')">Add to Cart</button>
+
+
   </div>
   {{end}}
 </div>
+
+<script>
+  let quantities = {}; // Object to store item quantities
+
+  function increaseQuantity(itemId) {
+    if (!quantities[itemId]) {
+      quantities[itemId] = 0;
+    }
+    quantities[itemId]++;
+    document.getElementById(`quantity-${itemId}`).textContent = quantities[itemId];
+  }
+
+  function decreaseQuantity(itemId) {
+    if (quantities[itemId] > 0) {
+      quantities[itemId]--;
+      document.getElementById(`quantity-${itemId}`).textContent = quantities[itemId];
+    }
+  }
+
+  function addToCart(itemId, name, price) {
+    const itemData = {
+      item_id: itemId,
+      name: name,
+      price: parseFloat(price),
+      quantity: 1
+    };
+
+    console.log("Sending to server:", itemData); // Log before sending
+
+    fetch("/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify(itemData) // Convert to JSON
+    })
+            .then(response => response.json())
+            .then(data => console.log("Server response:", data))
+            .catch(error => console.error("Error:", error));
+  }
+
+  function searchItems() {
+    const name = document.getElementById("searchInput").value;
+    if (name.trim() === "") return;
+
+    fetch(`/items/search?name=${encodeURIComponent(name)}`)
+            .then(response => response.json())
+            .then(data => {
+              const container = document.getElementById("itemsContainer");
+              container.innerHTML = "";
+
+              if (data.length === 0) {
+                container.innerHTML = "<p style='text-align:center;'>No items found</p>";
+                return;
+              }
+
+              data.forEach(item => {
+                const itemCard = document.createElement("div");
+                itemCard.className = "card";
+                itemCard.setAttribute("data-id", item._id);
+                itemCard.innerHTML = `
+            <h2>${item.name}</h2>
+            <p><strong>Category:</strong> ${item.category}</p>
+            <p class="price">$${item.price}</p>
+            <p><strong>Stock:</strong> ${item.stock}</p>
+            <p>${item.description}</p>
+
+            <div class="quantity-container">
+              <button class="quantity-btn" onclick="decreaseQuantity('${item._id}')">-</button>
+              <span class="quantity" id="quantity-${item._id}">0</span>
+              <button class="quantity-btn" onclick="increaseQuantity('${item._id}')">+</button>
+            </div>
+          `;
+                container.appendChild(itemCard);
+              });
+            })
+            .catch(error => console.error("Error fetching data:", error));
+  }
+
+  function resetItems() {
+    document.getElementById("searchInput").value = "";
+    location.reload();
+  }
+</script>
+
 </body>
 </html>
