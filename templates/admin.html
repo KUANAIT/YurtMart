@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+    h2 {
+      color: #333;
+    }
+    #items-list {
+      margin: 20px auto;
+      padding: 10px;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 50%;
+    }
+    #items-list p {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    form {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      width: 40%;
+      margin: auto;
+      text-align: left;
+    }
+    input, textarea, button {
+      width: 95%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    button {
+      background-color: midnightblue;
+      color: white;
+      cursor: pointer;
+      border: none;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: blue;
+    }
+  </style>
+</head>
+<body>
+<h2>Shop Items</h2>
+<div id="items-list"></div>
+
+<h2>Add New Item</h2>
+<form id="add-item-form">
+  <label>Name: <input type="text" id="name" required></label><br>
+  <label>Category: <input type="text" id="category" required></label><br>
+  <label>Price: <input type="number" id="price" step="0.01" required></label><br>
+  <label>Stock: <input type="number" id="stock" required></label><br>
+  <label>Description: <textarea id="description"></textarea></label><br>
+  <label>Image URL: <input type="text" id="image_url"></label><br>
+  <button type="submit">Add Item</button>
+</form>
+
+<script>
+  function fetchItems() {
+    fetch("http://localhost:8086/items/get")
+            .then(response => response.json())
+            .then(data => {
+              const itemsList = document.getElementById("items-list");
+              itemsList.innerHTML = "";
+              data.forEach(item => {
+                itemsList.innerHTML += `<p><strong>${item.name}</strong> - ${item.category} - $${item.price}</p>`;
+              });
+            })
+            .catch(error => console.error("Error loading items:", error));
+  }
+
+  document.getElementById("add-item-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const newItem = {
+      name: document.getElementById("name").value,
+      category: document.getElementById("category").value,
+      price: parseFloat(document.getElementById("price").value),
+      stock: parseInt(document.getElementById("stock").value),
+      description: document.getElementById("description").value,
+      image_url: document.getElementById("image_url").value
+    };
+
+    fetch("http://localhost:8086/items/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newItem)
+    })
+            .then(response => response.json())
+            .then(() => {
+              fetchItems();
+              document.getElementById("add-item-form").reset();
+            })
+            .catch(error => console.error("Error adding item:", error));
+  });
+
+  fetchItems();
+</script>
+</body>
+</html>

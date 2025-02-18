@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .cart-item span {
+            font-size: 1.2em;
+        }
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .total {
+            text-align: right;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        #checkout {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: midnightblue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Shopping Cart</h1>
+<div class="container">
+    <div id="cart-items"></div>
+    <p class="total">Total: $<span id="total-price">0</span></p>
+    <button id="checkout">Checkout</button>
+</div>
+
+<script>
+    function loadCart() {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let cartItemsContainer = document.getElementById("cart-items");
+        let totalPriceElem = document.getElementById("total-price");
+
+        cartItemsContainer.innerHTML = "";
+        let total = 0;
+
+        cart.forEach((item, index) => {
+            let cartItem = document.createElement("div");
+            cartItem.classList.add("cart-item");
+            cartItem.innerHTML = `
+        <span>${item.name} x ${item.quantity}</span>
+        <span>$${(item.price * item.quantity).toFixed(2)}</span>
+        <button class="remove-btn" data-index="${index}">Remove</button>
+      `;
+            cartItemsContainer.appendChild(cartItem);
+            total += item.price * item.quantity;
+        });
+
+        totalPriceElem.textContent = total.toFixed(2);
+
+        document.querySelectorAll(".remove-btn").forEach(button => {
+            button.addEventListener("click", function() {
+                let index = this.getAttribute("data-index");
+                cart.splice(index, 1);
+                localStorage.setItem("cart", JSON.stringify(cart));
+                loadCart();
+            });
+        });
+    }
+
+    document.getElementById("checkout").addEventListener("click", () => {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        if (cart.length === 0) {
+            alert("Your cart is empty!");
+            return;
+        }
+
+        fetch("http://localhost:8086/items_ordered/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items: cart })
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert("Order placed successfully!");
+                localStorage.removeItem("cart");
+                loadCart();
+            })
+            .catch(error => console.error("Error:", error));
+    });
+
+    document.addEventListener("DOMContentLoaded", loadCart);
+</script>
+
+</body>
+</html>
