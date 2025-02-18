@@ -9,6 +9,8 @@
     .card { background: #f4f4f4; padding: 20px; border-radius: 10px; display: inline-block; width: 50%; }
     .logout-button { margin-top: 20px; padding: 10px 15px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer; }
     .logout-button:hover { background-color: darkred; }
+    .admin-button { margin-top: 20px; padding: 10px 15px; background-color: blue; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .admin-button:hover { background-color: darkblue; }
     .address { text-align: left; margin-top: 20px; }
   </style>
 </head>
@@ -25,7 +27,17 @@
     <p>{{.ShippingAddress.Country}}</p>
   </div>
 
+  <!-- Admin Dashboard Button (Visible only if user is admin) -->
+  {{if .Admin}}
+  <a href="/admin">
+    <button class="admin-button">Go to Admin Dashboard(Customer)</button>
+  </a>
+  <a href="/adminitem">
+    <button class="admin-button">Go to Admin Dashboard(Products)</button>
+  </a>
+  {{end}}
 
+  <!-- Logout Button -->
   <form action="/logout" method="POST">
     <button class="logout-button" type="submit">Logout</button>
   </form>

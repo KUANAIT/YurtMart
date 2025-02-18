@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"YurtMart/sessions"
-	"encoding/json"
 	"net/http"
 )
 
@@ -19,5 +18,6 @@ func LogoutCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"message": "Logout successful"})
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+
 }

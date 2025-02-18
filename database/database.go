@@ -13,6 +13,8 @@ import (
 var DB *mongo.Collection
 var ItemsOrderedCollection *mongo.Collection
 var ShoppingCartCollection *mongo.Collection
+var CustomerCollection *mongo.Collection
+var PaymentCollection *mongo.Collection
 
 func Connect_DB() {
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
@@ -31,6 +33,8 @@ func Connect_DB() {
 
 	fmt.Println("Connected to MongoDB!")
 	DB = client.Database("supermarket").Collection("items")
+	CustomerCollection = client.Database("YurtMart").Collection("customers")
 	ItemsOrderedCollection = client.Database("supermarket").Collection("ordered_items")
 	ShoppingCartCollection = client.Database("supermarket").Collection("shopping_carts")
+	PaymentCollection = client.Database("YurtMart").Collection("payments")
 }

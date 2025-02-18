@@ -7,6 +7,7 @@ type ItemOrdered struct {
 	ItemID   primitive.ObjectID `bson:"item_id" json:"item_id"`
 	Quantity int                `bson:"quantity" json:"quantity"`
 	Price    float64            `bson:"price" json:"price"`
+	Name     string             `bson:"name,omitempty" json:"name,omitempty"`
 }
 
 type Order struct {

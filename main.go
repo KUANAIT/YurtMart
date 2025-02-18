@@ -30,6 +30,8 @@ func main() {
 	routes.RegisterItemOrderedRoutes()
 	routes.SearchRoutes()
 	routes.ShoppingCartRoutes()
+	routes.AdminRoutes()
+	routes.PaymentRoutes()
 	web.SetupTemplates()
 
 	log.Println("Server started on :3000")

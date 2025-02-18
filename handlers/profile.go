@@ -54,11 +54,13 @@ func Profile(w http.ResponseWriter, r *http.Request) {
 		ID              string
 		ShippingAddress models.Address
 		BillingAddress  models.Address
+		Admin           bool // Add this field
 	}{
 		Name:            customer.Name,
 		ID:              userID,
 		ShippingAddress: customer.ShippingAddress,
 		BillingAddress:  customer.BillingAddress,
+		Admin:           customer.Admin, // Pass the Admin field
 	})
 	if err != nil {
 		http.Error(w, "Failed to render page", http.StatusInternalServerError)

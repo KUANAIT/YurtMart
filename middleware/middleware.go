@@ -5,8 +5,8 @@ import (
 	"net/http"
 )
 
-func AuthRequired(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func AuthRequired(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		session, err := sessions.Get(r)
 		if err != nil {
 			http.Error(w, "Session error", http.StatusInternalServerError)
@@ -20,10 +20,9 @@ func AuthRequired(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
-	})
+		next(w, r)
+	}
 }
-
 func NoAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, err := sessions.Get(r)

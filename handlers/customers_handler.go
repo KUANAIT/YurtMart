@@ -3,6 +3,8 @@ package handlers
 import (
 	"YurtMart/database"
 	"YurtMart/models"
+	"YurtMart/sessions"
+	"context"
 	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -201,4 +203,48 @@ func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Customer deleted successfully"})
+}
+
+func GetShippingAddress(w http.ResponseWriter, r *http.Request) {
+	// Retrieve the session
+	session, err := sessions.Get(r)
+	if err != nil {
+		http.Error(w, `{"error": "Session error"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Check if the user is authenticated
+	userID, ok := session.Values["user_id"].(string)
+	if !ok {
+		http.Error(w, `{"error": "User not authenticated"}`, http.StatusUnauthorized)
+		return
+	}
+
+	// Convert userID to ObjectID
+	customerID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		http.Error(w, `{"error": "Invalid user ID"}`, http.StatusBadRequest)
+		return
+	}
+
+	// Fetch the customer from the database
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var customer models.Customer
+	filter := bson.M{"_id": customerID}
+	err = database.CustomerCollection.FindOne(ctx, filter).Decode(&customer)
+	if err != nil {
+		http.Error(w, `{"error": "Customer not found"}`, http.StatusNotFound)
+		return
+	}
+
+	// Output the shipping address
+	shippingAddress := customer.GetShippingAddress()
+
+	// Return the shipping address in the response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"shipping_address": shippingAddress,
+	})
 }
