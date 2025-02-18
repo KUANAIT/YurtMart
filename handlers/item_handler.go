@@ -5,6 +5,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"YurtMart/database"
 	"YurtMart/models"
@@ -16,24 +17,28 @@ import (
 )
 
 func RenderItemsPage(w http.ResponseWriter, r *http.Request) {
-	var items []models.Item
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	cursor, err := database.DB.Find(ctx, bson.M{}, options.Find())
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"category", 1}, {"name", 1}})
+
+	cursor, err := database.DB.Find(ctx, bson.M{}, findOptions)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer cursor.Close(ctx)
 
+	categoryMap := make(map[string][]models.Item)
 	for cursor.Next(ctx) {
 		var item models.Item
 		if err := cursor.Decode(&item); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		items = append(items, item)
+		categoryMap[item.Category] = append(categoryMap[item.Category], item)
 	}
 
 	t, err := template.ParseFiles("templates/shop.html")
@@ -43,7 +48,7 @@ func RenderItemsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	t.Execute(w, items)
+	t.Execute(w, categoryMap)
 }
 
 func CreateItem(w http.ResponseWriter, r *http.Request) {
@@ -89,18 +94,17 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(items)
 }
+func UpdateItemByID(w http.ResponseWriter, r *http.Request) {
 
-func UpdateItem(w http.ResponseWriter, r *http.Request) {
-	params := r.URL.Query()
-	id, err := primitive.ObjectIDFromHex(params.Get("id"))
+	idStr := strings.TrimPrefix(r.URL.Path, "/items/update/")
+	id, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {
-		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		return
 	}
 
 	var updatedItem models.Item
-	err = json.NewDecoder(r.Body).Decode(&updatedItem)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&updatedItem); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -111,7 +115,7 @@ func UpdateItem(w http.ResponseWriter, r *http.Request) {
 	update := bson.M{"$set": updatedItem}
 	_, err = database.DB.UpdateOne(ctx, bson.M{"_id": id}, update)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Update failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -120,8 +124,8 @@ func UpdateItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteItem(w http.ResponseWriter, r *http.Request) {
-	params := r.URL.Query()
-	id, err := primitive.ObjectIDFromHex(params.Get("id"))
+	idStr := strings.TrimPrefix(r.URL.Path, "/items/delete/")
+	id, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {
 		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
@@ -132,7 +136,7 @@ func DeleteItem(w http.ResponseWriter, r *http.Request) {
 
 	_, err = database.DB.DeleteOne(ctx, bson.M{"_id": id})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Delete failed", http.StatusInternalServerError)
 		return
 	}
 
