@@ -76,7 +76,6 @@
 
             const result = await response.json();
             if (response.ok) {
-                alert('Registration successful!');
                 window.location.href = '/login';
             } else {
                 document.getElementById('error-message').textContent = result.message || 'An error occurred';
