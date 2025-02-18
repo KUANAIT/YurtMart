@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Manage Products</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="/admin">Admin Dashboard</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-5">
+  <h1>Manage Products</h1>
+
+  <!-- Form for creating new items -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">Add New Product</h5>
+      <form id="create-item-form">
+        <div class="mb-3">
+          <label for="name" class="form-label">Name</label>
+          <input type="text" class="form-control" id="name" required>
+        </div>
+        <div class="mb-3">
+          <label for="category" class="form-label">Category</label>
+          <input type="text" class="form-control" id="category" required>
+        </div>
+        <div class="mb-3">
+          <label for="price" class="form-label">Price</label>
+          <input type="number" step="0.01" class="form-control" id="price" required>
+        </div>
+        <div class="mb-3">
+          <label for="stock" class="form-label">Stock</label>
+          <input type="number" class="form-control" id="stock" required>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Create Item</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- List of items -->
+  <div id="items-list">
+    <!-- Items will be loaded here -->
+  </div>
+</div>
+
+<script>
+  // Function to load items
+  async function loadItems() {
+    try {
+      const response = await fetch("/admin/items", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch items");
+      }
+      const items = await response.json();
+      const itemsList = document.getElementById("items-list");
+      itemsList.innerHTML = items.map(item => `
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">${item.name}</h5>
+            <p class="card-text">Category: ${item.category}</p>
+            <p class="card-text">Price: $${item.price}</p>
+            <p class="card-text">Stock: ${item.stock}</p>
+            <p class="card-text">Description: ${item.description || "N/A"}</p>
+            <button onclick="deleteItem('${item.id}')" class="btn btn-danger">Delete</button>
+            <button onclick="updateItem('${item.id}')" class="btn btn-primary">Edit</button>
+          </div>
+        </div>
+      `).join("");
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message);
+    }
+  }
+
+  // Function to create a new item
+  async function createItem(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("name").value;
+    const category = document.getElementById("category").value;
+    const price = parseFloat(document.getElementById("price").value);
+    const stock = parseInt(document.getElementById("stock").value);
+    const description = document.getElementById("description").value;
+
+    if (!name || !category || !price || !stock) {
+      alert("Name, category, price, and stock are required.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/admin/items/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          name,
+          category,
+          price,
+          stock,
+          description,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create item");
+      }
+      const data = await response.json();
+      alert(data.message);
+      loadItems(); // Refresh the list
+      document.getElementById("create-item-form").reset(); // Clear the form
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message);
+    }
+  }
+
+  // Function to delete an item
+  async function deleteItem(itemId) {
+    try {
+      const response = await fetch(`/admin/items/delete?id=${itemId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete item");
+      }
+      const data = await response.json();
+      alert(data.message);
+      loadItems(); // Refresh the list
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message);
+    }
+  }
+
+  // Function to update an item
+  async function updateItem(itemId) {
+    const newName = prompt("Enter new name:");
+    const newPrice = parseFloat(prompt("Enter new price:"));
+    const newStock = parseInt(prompt("Enter new stock:"));
+    const newCategory = prompt("Enter new category:");
+    const newDescription = prompt("Enter new description:");
+
+    if (!newName || !newPrice || !newStock || !newCategory) {
+      alert("Name, category, price, and stock are required.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/admin/items/update?id=${itemId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          name: newName,
+          price: newPrice,
+          stock: newStock,
+          category: newCategory,
+          description: newDescription,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update item");
+      }
+      const data = await response.json();
+      alert(data.message);
+      loadItems(); // Refresh the list
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message);
+    }
+  }
+
+  // Attach the form submission handler
+  document.getElementById("create-item-form").addEventListener("submit", createItem);
+
+  // Load items when the page loads
+  loadItems();
+</script>
+</body>
+</html>
