@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    .login-container {
+      display: inline-block;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    input {
+      display: block;
+      margin: 10px auto;
+      padding: 8px;
+    }
+    button {
+      padding: 10px 15px;
+      background: midnightblue;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <h2>Admin Login</h2>
+  <p>This page available only for admins! If you are an admin, please fill in these fields</p>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <button onclick="checkAdmin()">Login</button>
+  <p class="error" id="error-message"></p>
+</div>
+
+<script>
+  function checkAdmin() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if (email === "admin@gmail.com" && password === "12345678") {
+      localStorage.setItem("isAdmin", "true");
+      window.location.href = "http://localhost:8086/admin";
+    } else {
+      document.getElementById("error-message").innerText = "Invalid email or password!";
+    }
+  }
+</script>
+
+</body>
+</html>
