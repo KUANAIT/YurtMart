@@ -13,8 +13,11 @@ import (
 )
 
 func AddItem(w http.ResponseWriter, r *http.Request) {
-	var itemsOrdered []models.ItemOrdered
-	err := json.NewDecoder(r.Body).Decode(&itemsOrdered)
+	var request struct {
+		ItemsOrdered []models.ItemOrdered `json:"items"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -26,7 +29,7 @@ func AddItem(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	for _, itemOrdered := range itemsOrdered {
+	for _, itemOrdered := range request.ItemsOrdered {
 		var item models.Item
 		err = database.DB.FindOne(ctx, bson.M{"_id": itemOrdered.ItemID}).Decode(&item)
 		if err != nil {
@@ -37,7 +40,6 @@ func AddItem(w http.ResponseWriter, r *http.Request) {
 		itemOrdered.Price = item.Price
 
 		orderItems = append(orderItems, itemOrdered)
-
 		totalPrice += item.Price * float64(itemOrdered.Quantity)
 	}
 
@@ -46,6 +48,7 @@ func AddItem(w http.ResponseWriter, r *http.Request) {
 		TotalPrice: totalPrice,
 		Items:      orderItems,
 	}
+
 	_, err = database.ItemsOrderedCollection.InsertOne(ctx, order)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -70,7 +73,7 @@ func GetPrice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var order models.Order // Структура заказа
+	var order models.Order
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -98,8 +101,9 @@ func Display(w http.ResponseWriter, r *http.Request) {
 	defer cursor.Close(ctx)
 
 	var orders []struct {
-		ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-		TotalPrice float64            `bson:"total_price" json:"total_price"`
+		ID primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+
+		TotalPrice float64 `bson:"total_price" json:"total_price"`
 		Items      []struct {
 			ItemID   primitive.ObjectID `bson:"item_id" json:"item_id"`
 			Quantity int                `bson:"quantity" json:"quantity"`
@@ -110,8 +114,9 @@ func Display(w http.ResponseWriter, r *http.Request) {
 
 	for cursor.Next(ctx) {
 		var order struct {
-			ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-			TotalPrice float64            `bson:"total_price" json:"total_price"`
+			ID primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+
+			TotalPrice float64 `bson:"total_price" json:"total_price"`
 			Items      []struct {
 				ItemID   primitive.ObjectID `bson:"item_id" json:"item_id"`
 				Quantity int                `bson:"quantity" json:"quantity"`
