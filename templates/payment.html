@@ -46,17 +46,13 @@
     <p id="shipping-address">Loading shipping address...</p>
   </div>
 
-  <!-- Cart Items -->
   <div id="cart-items">
-    <!-- Cart items will be dynamically added here -->
   </div>
 
-  <!-- Total Price -->
   <div class="cart-total">
     Total: $<span id="cart-total">0.00</span>
   </div>
 
-  <!-- Payment Form -->
   <form id="payment-form" onsubmit="handlePayment(event)">
     <div class="mb-3">
       <label for="card-number" class="form-label">Card Number</label>
@@ -74,9 +70,7 @@
   </form>
 </div>
 
-<!-- JavaScript to fetch cart data and handle payment -->
 <script>
-  // Fetch cart data when the page loads
   async function fetchCart() {
     try {
       const response = await fetch("/cart", {
@@ -93,16 +87,13 @@
     }
   }
 
-  // Update the cart UI
   function updateCartUI(cartItems) {
     const cartItemsContainer = document.getElementById('cart-items');
     const cartTotalElement = document.getElementById('cart-total');
     let total = 0;
 
-    // Clear the cart items container
     cartItemsContainer.innerHTML = '';
 
-    // Add each item to the cart UI
     cartItems.forEach((item) => {
       const itemTotal = item.price * item.quantity;
       total += itemTotal;
@@ -116,12 +107,9 @@
       cartItemsContainer.appendChild(itemElement);
     });
 
-    // Update the total price
     cartTotalElement.textContent = total.toFixed(2);
   }
 
-  // Handle payment form submission
-  // Handle payment form submission
   async function handlePayment(event) {
     event.preventDefault();
 
@@ -129,13 +117,11 @@
     const expiryDate = document.getElementById('expiry-date').value;
     const cvv = document.getElementById('cvv').value;
 
-    // Validate payment details (basic validation)
     if (!cardNumber || !expiryDate || !cvv) {
       alert("Please fill out all payment details.");
       return;
     }
 
-    // Get the total price from the cart
     const totalPrice = parseFloat(document.getElementById('cart-total').textContent);
 
     try {
@@ -147,7 +133,7 @@
         credentials: "include",
         body: JSON.stringify({
           amount: totalPrice,
-          method: "credit card", // You can customize this based on the payment method
+          method: "credit card",
         }),
       });
       if (!response.ok) {
@@ -155,14 +141,13 @@
       }
       const data = await response.json();
       alert(data.message || "Payment successful!");
-      window.location.href = "/"; // Redirect to home page after payment
+      window.location.href = "/";
     } catch (error) {
       console.error("Error:", error);
       alert("Payment failed. Please try again.");
     }
   }
 
-  // Fetch the shipping address when the page loads
   async function fetchShippingAddress() {
     try {
       const response = await fetch("/customer/shipping-address", {
@@ -179,10 +164,8 @@
     }
   }
 
-  // Call the function when the page loads
   fetchShippingAddress();
 
-  // Fetch cart data when the page loads
   fetchCart();
 </script>
 </body>

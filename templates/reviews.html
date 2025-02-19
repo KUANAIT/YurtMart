@@ -15,7 +15,7 @@
   {{ if .Username }}
   <h2 class="text-center">Leave a Review</h2>
   <form action="/submit-review" method="POST" class="my-3">
-    <input type="hidden" name="item_id" value="{{ .ItemID }}"> <!-- Add this line -->
+    <input type="hidden" name="item_id" value="{{ .ItemID }}">
     <div class="mb-3">
       <label class="form-label">Rating (1-5):</label>
       <select name="rating" class="form-select">

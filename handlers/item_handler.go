@@ -17,7 +17,6 @@ import (
 )
 
 func RenderItemsPage(w http.ResponseWriter, r *http.Request) {
-	// Fetch items from the database
 	var items []models.Item
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -38,7 +37,6 @@ func RenderItemsPage(w http.ResponseWriter, r *http.Request) {
 		items = append(items, item)
 	}
 
-	// Fetch user data from the session
 	session, err := sessions.Get(r)
 	if err != nil {
 		http.Error(w, "Failed to retrieve session", http.StatusInternalServerError)
@@ -50,14 +48,12 @@ func RenderItemsPage(w http.ResponseWriter, r *http.Request) {
 	var isAuthenticated bool
 
 	if ok && userID != "" {
-		// Convert userID to ObjectID
 		objID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
 			http.Error(w, "Invalid user ID", http.StatusInternalServerError)
 			return
 		}
 
-		// Fetch user data from the database
 		var customer models.Customer
 		collection, err := database.GetCollection("YurtMart", "customers")
 		if err != nil {
@@ -75,7 +71,6 @@ func RenderItemsPage(w http.ResponseWriter, r *http.Request) {
 		isAuthenticated = true
 	}
 
-	// Prepare data for the template
 	data := struct {
 		Authenticated bool
 		UserName      string
@@ -86,7 +81,6 @@ func RenderItemsPage(w http.ResponseWriter, r *http.Request) {
 		Items:         items,
 	}
 
-	// Parse and execute the template
 	t, err := template.ParseFiles("templates/shop.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -192,21 +186,18 @@ func DeleteItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func RenderItemPage(w http.ResponseWriter, r *http.Request) {
-	// Extract item ID from the URL
 	itemID := r.URL.Query().Get("id")
 	if itemID == "" {
 		http.Error(w, "Item ID is required", http.StatusBadRequest)
 		return
 	}
 
-	// Convert item ID to ObjectID
 	objID, err := primitive.ObjectIDFromHex(itemID)
 	if err != nil {
 		http.Error(w, "Invalid item ID", http.StatusBadRequest)
 		return
 	}
 
-	// Fetch item details from the database
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -217,7 +208,6 @@ func RenderItemPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch reviews for this item
 	reviewCollection, _ := database.GetCollection("YurtMart", "reviews")
 	cursor, err := reviewCollection.Find(ctx, bson.M{"item_id": objID})
 	if err != nil {
@@ -232,7 +222,6 @@ func RenderItemPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch user data from the session
 	session, err := sessions.Get(r)
 	if err != nil {
 		http.Error(w, "Failed to retrieve session", http.StatusInternalServerError)
@@ -245,14 +234,12 @@ func RenderItemPage(w http.ResponseWriter, r *http.Request) {
 	var currentUserID primitive.ObjectID
 
 	if ok && userID != "" {
-		// Convert userID to ObjectID
 		userObjID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
 			http.Error(w, "Invalid user ID", http.StatusInternalServerError)
 			return
 		}
 
-		// Fetch user data from the database
 		var customer models.Customer
 		collection, err := database.GetCollection("YurtMart", "customers")
 		if err != nil {
@@ -268,25 +255,23 @@ func RenderItemPage(w http.ResponseWriter, r *http.Request) {
 
 		userName = customer.Name
 		isAuthenticated = true
-		currentUserID = userObjID // Set the current user's ID
+		currentUserID = userObjID
 	}
 
-	// Prepare data for the template
 	data := struct {
 		Authenticated bool
 		UserName      string
 		Item          models.Item
 		Reviews       []models.Review
-		CurrentUserID primitive.ObjectID // Pass the current user's ID
+		CurrentUserID primitive.ObjectID
 	}{
 		Authenticated: isAuthenticated,
 		UserName:      userName,
 		Item:          item,
 		Reviews:       reviews,
-		CurrentUserID: currentUserID, // Pass the current user's ID
+		CurrentUserID: currentUserID,
 	}
 
-	// Parse and execute the template
 	t, err := template.ParseFiles("templates/item_page.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

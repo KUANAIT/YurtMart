@@ -206,28 +206,24 @@ func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetShippingAddress(w http.ResponseWriter, r *http.Request) {
-	// Retrieve the session
 	session, err := sessions.Get(r)
 	if err != nil {
 		http.Error(w, `{"error": "Session error"}`, http.StatusInternalServerError)
 		return
 	}
 
-	// Check if the user is authenticated
 	userID, ok := session.Values["user_id"].(string)
 	if !ok {
 		http.Error(w, `{"error": "User not authenticated"}`, http.StatusUnauthorized)
 		return
 	}
 
-	// Convert userID to ObjectID
 	customerID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		http.Error(w, `{"error": "Invalid user ID"}`, http.StatusBadRequest)
 		return
 	}
 
-	// Fetch the customer from the database
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -239,10 +235,8 @@ func GetShippingAddress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Output the shipping address
 	shippingAddress := customer.GetShippingAddress()
 
-	// Return the shipping address in the response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
 		"shipping_address": shippingAddress,

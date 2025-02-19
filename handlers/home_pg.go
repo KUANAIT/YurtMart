@@ -24,10 +24,8 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Retrieve user ID from the session
 	userID, ok := session.Values["user_id"].(string)
 	if !ok || userID == "" {
-		// If there's no user ID in the session, render the page without user-specific data
 		data := struct {
 			Authenticated bool
 			UserName      string
@@ -39,14 +37,12 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert userID to ObjectID
 	objID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		http.Error(w, "Invalid user ID", http.StatusInternalServerError)
 		return
 	}
 
-	// Fetch user data from the database
 	collection, err := database.GetCollection("YurtMart", "customers")
 	if err != nil {
 		http.Error(w, "Failed to get database collection", http.StatusInternalServerError)
@@ -60,7 +56,6 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the user is authenticated
 	_, isAuthenticated := session.Values["authenticated"].(bool)
 
 	data := struct {
@@ -68,7 +63,7 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 		UserName      string
 	}{
 		Authenticated: isAuthenticated,
-		UserName:      customer.Name, // Fetch the name from the database
+		UserName:      customer.Name,
 	}
 
 	err = tmpl.Execute(w, data)

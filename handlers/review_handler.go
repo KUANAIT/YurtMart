@@ -35,7 +35,7 @@ func Reviews(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	itemID := r.URL.Query().Get("item_id") // Get the item_id from the query parameters
+	itemID := r.URL.Query().Get("item_id")
 	var filter bson.M
 	if itemID != "" {
 		objID, err := primitive.ObjectIDFromHex(itemID)
@@ -43,9 +43,9 @@ func Reviews(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid item ID", http.StatusBadRequest)
 			return
 		}
-		filter = bson.M{"item_id": objID} // Filter reviews by item_id
+		filter = bson.M{"item_id": objID}
 	} else {
-		filter = bson.M{} // No filter, fetch all reviews
+		filter = bson.M{}
 	}
 
 	reviewCollection, _ := database.GetCollection("YurtMart", "reviews")
@@ -73,13 +73,13 @@ func Reviews(w http.ResponseWriter, r *http.Request) {
 		UserID        string
 		Reviews       []models.Review
 		CurrentUserID primitive.ObjectID
-		ItemID        string // Add this line
+		ItemID        string
 	}{
 		Username:      username,
 		UserID:        userID,
 		Reviews:       reviews,
 		CurrentUserID: currentUserID,
-		ItemID:        itemID, // Add this line
+		ItemID:        itemID,
 	})
 	if err != nil {
 		http.Error(w, "Failed to render page", http.StatusInternalServerError)
@@ -140,18 +140,15 @@ func SubmitReview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if the user has already reviewed this item
 	reviewCollection, _ := database.GetCollection("YurtMart", "reviews")
 	filter := bson.M{"user_id": objID, "item_id": itemID}
 	var existingReview models.Review
 	err = reviewCollection.FindOne(context.TODO(), filter).Decode(&existingReview)
 	if err == nil {
-		// If a review already exists, return an error
 		http.Error(w, "You have already reviewed this item", http.StatusBadRequest)
 		return
 	}
 
-	// If no review exists, insert the new review
 	review := models.Review{
 		ID:       primitive.NewObjectID(),
 		UserID:   objID,
@@ -171,18 +168,18 @@ func SubmitReview(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditReview(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Request method:", r.Method) // Debug log
+	fmt.Println("Request method:", r.Method)
 	if r.Method != http.MethodPut {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	reviewID := r.URL.Query().Get("id")
-	fmt.Println("Editing review with ID:", reviewID) // Debug log
+	fmt.Println("Editing review with ID:", reviewID)
 
 	objID, err := primitive.ObjectIDFromHex(reviewID)
 	if err != nil {
-		fmt.Println("Invalid review ID:", err) // Debug log
+		fmt.Println("Invalid review ID:", err)
 		http.Error(w, "Invalid review ID", http.StatusBadRequest)
 		return
 	}
@@ -192,12 +189,12 @@ func EditReview(w http.ResponseWriter, r *http.Request) {
 		Text   string `json:"text"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
-		fmt.Println("Failed to decode request body:", err) // Debug log
+		fmt.Println("Failed to decode request body:", err)
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("Updating review with data:", requestData) // Debug log
+	fmt.Println("Updating review with data:", requestData)
 
 	reviewCollection, _ := database.GetCollection("YurtMart", "reviews")
 	update := bson.M{
@@ -209,7 +206,7 @@ func EditReview(w http.ResponseWriter, r *http.Request) {
 
 	_, err = reviewCollection.UpdateOne(context.TODO(), bson.M{"_id": objID}, update)
 	if err != nil {
-		fmt.Println("Failed to update review:", err) // Debug log
+		fmt.Println("Failed to update review:", err)
 		http.Error(w, "Failed to update review", http.StatusInternalServerError)
 		return
 	}
@@ -248,27 +245,23 @@ func DeleteReview(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetReview(w http.ResponseWriter, r *http.Request) {
-	// Ensure the request method is GET
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Extract the review ID from the query parameters
 	reviewID := r.URL.Query().Get("id")
 	fmt.Println("Fetching review with ID:", reviewID)
 	if reviewID == "" {
 		http.Error(w, "Review ID is required", http.StatusBadRequest)
 		return
 	}
-	// Convert the review ID to an ObjectID
 	objID, err := primitive.ObjectIDFromHex(reviewID)
 	if err != nil {
 		http.Error(w, "Invalid review ID", http.StatusBadRequest)
 		return
 	}
 
-	// Fetch the review from the database
 	reviewCollection, err := database.GetCollection("YurtMart", "reviews")
 	if err != nil {
 		http.Error(w, "Failed to get database collection", http.StatusInternalServerError)
@@ -286,7 +279,6 @@ func GetReview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return the review as JSON
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(review)
 }

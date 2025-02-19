@@ -12,14 +12,12 @@ import (
 
 func AdminOnly(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Retrieve the session
 		session, err := sessions.Get(r)
 		if err != nil {
 			http.Error(w, "Session error", http.StatusInternalServerError)
 			return
 		}
 
-		// Check if the user is authenticated
 		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
@@ -27,7 +25,6 @@ func AdminOnly(next http.Handler) http.Handler {
 			return
 		}
 
-		// Retrieve the user ID from the session
 		userID, ok := session.Values["user_id"].(string)
 		if !ok || userID == "" {
 			w.Header().Set("Content-Type", "application/json")
@@ -36,7 +33,6 @@ func AdminOnly(next http.Handler) http.Handler {
 			return
 		}
 
-		// Convert userID to ObjectID
 		objID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
@@ -45,7 +41,6 @@ func AdminOnly(next http.Handler) http.Handler {
 			return
 		}
 
-		// Fetch the user from the database
 		collection, err := database.GetCollection("YurtMart", "customers")
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
@@ -63,7 +58,6 @@ func AdminOnly(next http.Handler) http.Handler {
 			return
 		}
 
-		// Check if the user is an admin
 		if !customer.Admin {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusForbidden)
@@ -71,7 +65,6 @@ func AdminOnly(next http.Handler) http.Handler {
 			return
 		}
 
-		// Call the next handler if the user is an admin
 		next.ServeHTTP(w, r)
 	})
 }

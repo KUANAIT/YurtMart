@@ -156,7 +156,6 @@ func AdminCreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate required fields
 	if item.Name == "" || item.Category == "" || item.Price <= 0 || item.Stock < 0 {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -164,7 +163,6 @@ func AdminCreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Insert the new item into the database
 	result, err := database.DB.InsertOne(ctx, item)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -173,7 +171,6 @@ func AdminCreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return the ID of the newly created item
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{

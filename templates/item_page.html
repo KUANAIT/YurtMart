@@ -24,7 +24,7 @@
       <h2>Reviews</h2>
       {{if .Authenticated}}
       <form action="/submit-review" method="POST" class="my-3">
-        <input type="hidden" name="item_id" value="{{.Item.ID.Hex}}"> <!-- Pass item ID -->
+        <input type="hidden" name="item_id" value="{{.Item.ID.Hex}}">
         <div class="mb-3">
           <label class="form-label">Rating (1-5):</label>
           <select name="rating" class="form-select">
@@ -53,7 +53,7 @@
         <li class="list-group-item">
           <strong>{{.Username}}</strong> - <span>{{.Rating}}★</span>
           <p>{{.Text}}</p>
-          {{if eq $.CurrentUserID .UserID}} <!-- Check if the review belongs to the current user -->
+          {{if eq $.CurrentUserID .UserID}}
           <div class="mt-2">
             <button onclick="editReview('{{.ID.Hex}}')" class="btn btn-sm btn-warning">Edit</button>
             <button onclick="deleteReview('{{.ID.Hex}}')" class="btn btn-sm btn-danger">Delete</button>
@@ -94,34 +94,28 @@
 </div>
 
 <script>
-  // Function to open the edit form
   function editReview(reviewID) {
-    // Fetch the review details
     fetch(`/review?id=${reviewID}`)
             .then(response => response.json())
             .then(review => {
-              // Populate the edit form
               document.getElementById('edit-review-id').value = reviewID;
               document.getElementById('edit-review-rating').value = review.rating;
               document.getElementById('edit-review-text').value = review.text;
 
-              // Show the edit form
               document.getElementById('edit-review-form').style.display = 'block';
             })
             .catch(error => console.error('Error fetching review:', error));
   }
 
-  // Function to close the edit form
   function closeEditForm() {
     document.getElementById('edit-review-form').style.display = 'none';
   }
 
-  // Function to submit the edited review
   function submitEditReview(event) {
     event.preventDefault();
 
     const reviewID = document.getElementById('edit-review-id').value;
-    const rating = parseInt(document.getElementById('edit-review-rating').value, 10); // Convert to integer
+    const rating = parseInt(document.getElementById('edit-review-rating').value, 10);
     const text = document.getElementById('edit-review-text').value;
 
     fetch(`/review/edit?id=${reviewID}`, {
@@ -133,7 +127,7 @@
     })
             .then(response => {
               if (response.ok) {
-                window.location.reload(); // Reload the page to reflect changes
+                window.location.reload();
               } else {
                 alert('Failed to update review');
               }
@@ -141,7 +135,6 @@
             .catch(error => console.error('Error updating review:', error));
   }
 
-  // Function to delete a review
   function deleteReview(reviewID) {
     if (confirm('Are you sure you want to delete this review?')) {
       fetch(`/review/delete?id=${reviewID}`, {
@@ -149,7 +142,7 @@
       })
               .then(response => {
                 if (response.ok) {
-                  window.location.reload(); // Reload the page to reflect changes
+                  window.location.reload();
                 } else {
                   alert('Failed to delete review');
                 }

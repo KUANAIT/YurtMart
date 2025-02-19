@@ -23,12 +23,10 @@
 <div class="container my-5">
   <h1>Welcome, Admin!</h1>
   <div id="users-list">
-    <!-- Users will be loaded here -->
   </div>
 </div>
 
 <script>
-  // Fetch and display users
   async function loadUsers() {
     try {
       const response = await fetch("/admin/users", {
@@ -56,7 +54,6 @@
     }
   }
 
-  // Delete a user
   async function deleteUser(userId) {
     try {
       const response = await fetch(`/admin/users/delete?id=${userId}`, {
@@ -68,18 +65,16 @@
       }
       const data = await response.json();
       alert(data.message);
-      loadUsers(); // Refresh the list
+      loadUsers();
     } catch (error) {
       console.error("Error:", error);
       alert(error.message);
     }
   }
 
-  // Update a user (toggle admin rights)
   async function updateUser(userId) {
-    console.log("Updating user with ID:", userId); // Debugging line
+    console.log("Updating user with ID:", userId);
     try {
-      // Fetch the current user data
       const userResponse = await fetch(`/admin/users?id=${userId}`, {
         credentials: "include",
       });
@@ -88,10 +83,8 @@
       }
       const user = await userResponse.json();
 
-      // Toggle the admin status
       const newAdminStatus = !user.admin;
 
-      // Send the update request
       const updateResponse = await fetch(`/admin/users/update?id=${userId}`, {
         method: "PUT",
         headers: {
@@ -105,14 +98,13 @@
       }
       const data = await updateResponse.json();
       alert(data.message);
-      loadUsers(); // Refresh the list
+      loadUsers();
     } catch (error) {
       console.error("Error:", error);
       alert(error.message);
     }
   }
 
-  // Load users when the page loads
   loadUsers();
 </script>
 </body>

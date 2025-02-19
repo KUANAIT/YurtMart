@@ -100,7 +100,7 @@ func AdminUpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var updateData struct {
-		Admin *bool `json:"admin"` // Use a pointer to check for nil
+		Admin *bool `json:"admin"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
 		w.Header().Set("Content-Type", "application/json")

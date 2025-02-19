@@ -7,12 +7,33 @@
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
     .card { background: #f4f4f4; padding: 20px; border-radius: 10px; display: inline-block; width: 50%; }
-    .logout-button { margin-top: 20px; padding: 10px 15px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .logout-button, .admin-button, .toggle-button { margin-top: 20px; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
+    .logout-button { background-color: red; color: white; }
     .logout-button:hover { background-color: darkred; }
-    .admin-button { margin-top: 20px; padding: 10px 15px; background-color: blue; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .admin-button { background-color: blue; color: white; }
     .admin-button:hover { background-color: darkblue; }
-    .address { text-align: left; margin-top: 20px; }
+    .toggle-button { background-color: gray; color: white; }
+    .toggle-button:hover { background-color: darkgray; }
+    .form-container { display: none; text-align: left; margin-top: 20px; }
+    .form-container input { margin-bottom: 10px; padding: 5px; width: 100%; }
+    .form-container button { padding: 10px 15px; background-color: green; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .form-container button:hover { background-color: darkgreen; }
   </style>
+  <script>
+    function toggleForm(formId) {
+      const form = document.getElementById(formId);
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    window.onload = function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('error')) {
+        alert(urlParams.get('error'));
+      } else if (urlParams.has('success')) {
+        alert(urlParams.get('success'));
+      }
+    }
+  </script>
 </head>
 <body>
 
@@ -27,17 +48,41 @@
     <p>{{.ShippingAddress.Country}}</p>
   </div>
 
-  <!-- Admin Dashboard Button (Visible only if user is admin) -->
+  <button class="toggle-button" onclick="toggleForm('editAddressForm')">Edit Shipping Address</button>
+
+  <div class="form-container" id="editAddressForm">
+    <h3>Edit Shipping Address</h3>
+    <form action="/profile/edit" method="POST">
+      <input type="text" name="street" placeholder="Street" value="{{.ShippingAddress.Street}}" required>
+      <input type="text" name="city" placeholder="City" value="{{.ShippingAddress.City}}" required>
+      <input type="text" name="state" placeholder="State" value="{{.ShippingAddress.State}}" required>
+      <input type="text" name="postal_code" placeholder="Postal Code" value="{{.ShippingAddress.PostalCode}}" required>
+      <input type="text" name="country" placeholder="Country" value="{{.ShippingAddress.Country}}" required>
+      <button type="submit">Update Address</button>
+    </form>
+  </div>
+
+  <button class="toggle-button" onclick="toggleForm('changePasswordForm')">Change Password</button>
+
+  <div class="form-container" id="changePasswordForm">
+    <h3>Change Password</h3>
+    <form action="/profile/change-password" method="POST">
+      <input type="password" name="current_password" placeholder="Current Password" required>
+      <input type="password" name="new_password" placeholder="New Password" required>
+      <input type="password" name="confirm_password" placeholder="Confirm New Password" required>
+      <button type="submit">Change Password</button>
+    </form>
+  </div>
+
   {{if .Admin}}
   <a href="/admin">
-    <button class="admin-button">Go to Admin Dashboard(Customer)</button>
+    <button class="admin-button">Go to Admin Dashboard (Customer)</button>
   </a>
   <a href="/adminitem">
-    <button class="admin-button">Go to Admin Dashboard(Products)</button>
+    <button class="admin-button">Go to Admin Dashboard (Products)</button>
   </a>
   {{end}}
 
-  <!-- Logout Button -->
   <form action="/logout" method="POST">
     <button class="logout-button" type="submit">Logout</button>
   </form>

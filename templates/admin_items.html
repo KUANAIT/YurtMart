@@ -23,7 +23,6 @@
 <div class="container my-5">
   <h1>Manage Products</h1>
 
-  <!-- Form for creating new items -->
   <div class="card mb-3">
     <div class="card-body">
       <h5 class="card-title">Add New Product</h5>
@@ -53,14 +52,11 @@
     </div>
   </div>
 
-  <!-- List of items -->
   <div id="items-list">
-    <!-- Items will be loaded here -->
   </div>
 </div>
 
 <script>
-  // Function to load items
   async function loadItems() {
     try {
       const response = await fetch("/admin/items", {
@@ -90,7 +86,6 @@
     }
   }
 
-  // Function to create a new item
   async function createItem(event) {
     event.preventDefault();
 
@@ -125,15 +120,14 @@
       }
       const data = await response.json();
       alert(data.message);
-      loadItems(); // Refresh the list
-      document.getElementById("create-item-form").reset(); // Clear the form
+      loadItems();
+      document.getElementById("create-item-form").reset();
     } catch (error) {
       console.error("Error:", error);
       alert(error.message);
     }
   }
 
-  // Function to delete an item
   async function deleteItem(itemId) {
     try {
       const response = await fetch(`/admin/items/delete?id=${itemId}`, {
@@ -145,14 +139,13 @@
       }
       const data = await response.json();
       alert(data.message);
-      loadItems(); // Refresh the list
+      loadItems();
     } catch (error) {
       console.error("Error:", error);
       alert(error.message);
     }
   }
 
-  // Function to update an item
   async function updateItem(itemId) {
     const newName = prompt("Enter new name:");
     const newPrice = parseFloat(prompt("Enter new price:"));
@@ -185,17 +178,15 @@
       }
       const data = await response.json();
       alert(data.message);
-      loadItems(); // Refresh the list
+      loadItems();
     } catch (error) {
       console.error("Error:", error);
       alert(error.message);
     }
   }
 
-  // Attach the form submission handler
   document.getElementById("create-item-form").addEventListener("submit", createItem);
 
-  // Load items when the page loads
   loadItems();
 </script>
 </body>

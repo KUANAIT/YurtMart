@@ -13,5 +13,7 @@ func RegisterRoutes() {
 	http.HandleFunc("/customers/address", handlers.GetCustomerAddress)
 	http.HandleFunc("/loginuser", handlers.LoginCustomer)
 	http.HandleFunc("/profile", handlers.Profile)
+	http.HandleFunc("/profile/edit", handlers.EditShippingAddress)
+	http.HandleFunc("/profile/change-password", handlers.ChangePassword)
 
 }
